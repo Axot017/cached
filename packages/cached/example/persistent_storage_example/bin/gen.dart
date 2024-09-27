@@ -42,6 +42,15 @@ abstract mixin class Gen implements _$Gen {
     return decodedBody.map<Todo>((e) => Todo.fromJson(e)).toList();
   }
 
+  @PersistentCached(ttl: 5)
+  Future<List<Todo>> getTodosWithTtl() async {
+    final uri = Uri.parse(_url);
+    final response = await http.get(uri);
+    final decodedBody = jsonDecode(response.body);
+
+    return decodedBody.map<Todo>((e) => Todo.fromJson(e)).toList();
+  }
+
   /// We will pass only a [directPersistentStorage]
   /// here becouse you can not use any params combination
   @DirectPersistentCached()
@@ -59,4 +68,10 @@ abstract mixin class Gen implements _$Gen {
   Future<void> clearTodos() async {
     print('Deleting todos from database...');
   }
+
+  @CachePeek('getTodos')
+  List<Todo>? peekMethodWithoutTtl();
+
+  @CachePeek('getTodosWithTtl')
+  List<Todo>? peekMethodWithTtl();
 }

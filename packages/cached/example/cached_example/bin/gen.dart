@@ -128,6 +128,14 @@ abstract mixin class Gen implements _$Gen {
   /// Method with this annotation will clear cached values for all methods.
   @clearAllCached
   void clearAllCache();
+
+  @Cached(ttl: 20)
+  Future<int?> cachedMethodWithTtl(int x) async {
+    return 3;
+  }
+
+  @CachePeek('cachedMethodWithTtl')
+  int? peekCachedMethodWithTtl(int x);
 }
 
 Future<bool> _shouldCache(Response response) async {
