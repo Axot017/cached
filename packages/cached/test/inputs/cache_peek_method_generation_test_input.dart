@@ -366,6 +366,9 @@ class _StaticCache with StaticCache implements _$StaticCache {
   _StaticCache();
 
   static final _cachedMethodCached = <String, int?>{};
+  static final _cachedMethodWithTtlCached = <String, int?>{};
+
+  static final _cachedMethodWithTtlTtl = <String, String>{};
 
   @override
   Future<int?> cachedMethod(int x) async {
@@ -389,10 +392,59 @@ class _StaticCache with StaticCache implements _$StaticCache {
   }
 
   @override
+  Future<int?> cachedMethodWithTtl(int x) async {
+    final now = DateTime.now();
+    final cachedTtl = _cachedMethodWithTtlTtl["${x.hashCode}"];
+    final currentTtl = cachedTtl != null ? DateTime.parse(cachedTtl) : null;
+
+    if (currentTtl != null && currentTtl.isBefore(now)) {
+      _cachedMethodWithTtlTtl.remove("${x.hashCode}");
+      _cachedMethodWithTtlCached.remove("${x.hashCode}");
+    }
+
+    final cachedValue = _cachedMethodWithTtlCached["${x.hashCode}"];
+    if (cachedValue == null) {
+      final int? toReturn;
+      try {
+        final result = super.cachedMethodWithTtl(x);
+
+        toReturn = await result;
+      } catch (_) {
+        rethrow;
+      } finally {}
+
+      _cachedMethodWithTtlCached["${x.hashCode}"] = toReturn;
+
+      const duration = Duration(seconds: 20);
+      _cachedMethodWithTtlTtl["${x.hashCode}"] =
+          DateTime.now().add(duration).toIso8601String();
+
+      return toReturn;
+    } else {
+      return cachedValue;
+    }
+  }
+
+  @override
   int? cachedPeek(int x) {
     final paramsKey = "${x.hashCode}";
 
     return _cachedMethodCached[paramsKey];
+  }
+
+  @override
+  int? cachedPeekWithTtl(int x) {
+    final paramsKey = "${x.hashCode}";
+
+    final now = DateTime.now();
+    final cachedTtl = _cachedMethodWithTtlTtl[paramsKey];
+    final currentTtl = cachedTtl != null ? DateTime.parse(cachedTtl) : null;
+
+    if (currentTtl != null && currentTtl.isBefore(now)) {
+      return null;
+    }
+
+    return _cachedMethodWithTtlCached[paramsKey];
   }
 }
 ''')
@@ -405,6 +457,14 @@ abstract class StaticCache {
     return y;
   }
 
+  @Cached(ttl: 20)
+  Future<int?> cachedMethodWithTtl(int x) {
+    return y;
+  }
+
   @CachePeek("cachedMethod")
   int? cachedPeek(int x);
+
+  @CachePeek("cachedMethodWithTtl")
+  int? cachedPeekWithTtl(int x);
 }

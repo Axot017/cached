@@ -1,6 +1,7 @@
 import 'package:analyzer/dart/constant/value.dart';
 import 'package:analyzer/dart/element/element.dart';
 import 'package:cached/src/config.dart';
+import 'package:cached/src/models/cached_function_local_config.dart';
 import 'package:cached/src/models/param.dart';
 import 'package:cached_annotation/cached_annotation.dart';
 import 'package:collection/collection.dart';
@@ -14,6 +15,7 @@ class CachePeekMethod {
     required this.targetMethodName,
     required this.returnType,
     required this.params,
+    required this.targetHasTtl,
   });
 
   factory CachePeekMethod.fromElement(
@@ -110,11 +112,23 @@ class CachePeekMethod {
       );
     }
 
+    bool targetMethodHasTtl = false;
+
+    try {
+      final targetLocalConfig =
+          CachedFunctionLocalConfig.fromElement(targetMethod);
+      targetMethodHasTtl = targetLocalConfig.ttl != null;
+    } catch (e) {
+      print(e);
+      // ignore
+    }
+
     return CachePeekMethod(
       name: element.name,
       returnType: peekCacheMethodTypeStr,
       params: targetMethodParameters.map((p) => Param.fromElement(p, config)),
       targetMethodName: methodName,
+      targetHasTtl: targetMethodHasTtl,
     );
   }
 
@@ -122,6 +136,7 @@ class CachePeekMethod {
   final String targetMethodName;
   final Iterable<Param> params;
   final String returnType;
+  final bool targetHasTtl;
 
   static DartObject? getAnnotation(MethodElement element) {
     const methodAnnotationChecker = TypeChecker.fromRuntime(CachePeek);
