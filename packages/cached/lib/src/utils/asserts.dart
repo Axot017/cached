@@ -13,8 +13,7 @@ import 'package:source_gen/source_gen.dart';
 
 void assertMethodNotVoid(ExecutableElement element) {
   if (element.returnType is VoidType ||
-      element.returnType.getDisplayString(withNullability: false) ==
-          'Future<void>') {
+      element.returnType.getDisplayString() == 'Future<void>') {
     throw InvalidGenerationSourceError(
       '[ERROR] Method ${element.name} returns void or Future<void> which is not allowed',
       element: element,
@@ -110,7 +109,7 @@ void assertValidateClearCachedMethods(
 }
 
 void assertCorrectClearMethodType(MethodElement element) {
-  final returnType = element.returnType.getDisplayString(withNullability: true);
+  final returnType = element.returnType.getDisplayString();
 
   if (element.isAbstract) {
     if (element.isAsynchronous) {
@@ -243,8 +242,7 @@ void assertValidateDeletesCacheMethods(
 }
 
 void assertMethodReturnsBool(ExecutableElement element) {
-  final returnType =
-      element.returnType.getDisplayString(withNullability: false);
+  final returnType = element.returnType.getDisplayString();
   if (!(isFutureBool(returnType) || isBool(returnType))) {
     throw InvalidGenerationSourceError(
       '[ERROR] `${element.name}` must be a bool or Future<bool> method',
@@ -267,10 +265,10 @@ void assertHasSingleParameterWithGivenType(
 
   final firstParameter = element.parameters[0];
   final syncParamType = syncReturnType(
-    firstParameter.type.getDisplayString(withNullability: false),
+    firstParameter.type.getDisplayString(),
   );
 
-  final returnType = expectedType.getDisplayString(withNullability: false);
+  final returnType = expectedType.getDisplayString();
   final syncExpectedType = syncReturnType(returnType);
 
   if (syncParamType != syncExpectedType) {
@@ -285,12 +283,10 @@ void assertNotSyncAsyncMismatch(
   ExecutableElement first,
   ExecutableElement second,
 ) {
-  final firstReturnType =
-      first.returnType.getDisplayString(withNullability: false);
+  final firstReturnType = first.returnType.getDisplayString();
   final firstReturnTypeIsFuture = isFuture(firstReturnType);
 
-  final secondReturnType =
-      second.returnType.getDisplayString(withNullability: false);
+  final secondReturnType = second.returnType.getDisplayString();
   final secondReturnTypeIsFuture = isFuture(secondReturnType);
 
   final hasSyncAndAsyncMismatch =

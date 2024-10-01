@@ -44,7 +44,7 @@ class ClearCachedMethod {
     }
 
     final returnType = element.returnType;
-    final displayType = returnType.getDisplayString(withNullability: true);
+    final displayType = returnType.getDisplayString();
     final parameters = element.parameters;
     final mappedParams = parameters.map((e) => Param.fromElement(e, config));
     final shouldClearTtl = ttlsToClear.contains(methodName);

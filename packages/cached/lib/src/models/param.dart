@@ -63,7 +63,7 @@ class Param {
     }
 
     if (annotation != null) {
-      if (element.type.getDisplayString(withNullability: true) != 'bool') {
+      if (element.type.getDisplayString() != 'bool') {
         throw InvalidGenerationSourceError(
           '[ERROR] Ignore cache param need to be not nullable bool',
           element: element,
@@ -113,7 +113,7 @@ class Param {
 
     return Param(
       name: element.name,
-      type: element.type.getDisplayString(withNullability: true),
+      type: element.type.getDisplayString(),
       ignoreCacheAnnotation: annotationData,
       defaultValue: element.defaultValueCode,
       isNamed: element.isNamed,

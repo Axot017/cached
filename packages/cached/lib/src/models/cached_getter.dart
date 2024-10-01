@@ -49,9 +49,7 @@ class CachedGetter extends CachedFunction {
     final ttl = isDirect ? null : localConfig.ttl ?? config.ttl;
     final persistentStorage = isPersistent || localConfig.persistentStorage;
     final lazyPersistentStorage = !isDirect && isLazy;
-    final returnType = element.returnType.getDisplayString(
-      withNullability: true,
-    );
+    final returnType = element.returnType.getDisplayString();
 
     return CachedGetter(
       name: element.name,

@@ -1,5 +1,6 @@
 import 'package:analyzer/dart/constant/value.dart';
 import 'package:analyzer/dart/element/element.dart';
+import 'package:analyzer/dart/element/nullability_suffix.dart';
 import 'package:cached/src/config.dart';
 import 'package:cached/src/models/param.dart';
 import 'package:cached_annotation/cached_annotation.dart';
@@ -44,20 +45,36 @@ class CachePeekMethod {
     }
 
     final peekCacheMethodType = element.returnType;
-    final peekCacheMethodTypeStr = peekCacheMethodType.getDisplayString(
-      withNullability: false,
-    );
+    final peekCacheMethodTypeStr = peekCacheMethodType.getDisplayString();
 
     const futureTypeChecker = TypeChecker.fromRuntime(Future);
     final targetMethodReturnType = targetMethod.returnType.isDartAsyncFuture
         ? targetMethod.returnType.typeArgumentsOf(futureTypeChecker)?.single
         : targetMethod.returnType;
 
-    final targetMethodTypeStr = targetMethodReturnType?.getDisplayString(
-      withNullability: false,
-    );
+    final targetMethodTypeStr = targetMethodReturnType?.getDisplayString();
 
-    if (peekCacheMethodTypeStr != targetMethodTypeStr) {
+    if (element.returnType.nullabilitySuffix != NullabilitySuffix.question) {
+      throw InvalidGenerationSourceError(
+        '[ERROR] Peek cache method return type needs to be nullable',
+        element: element,
+      );
+    }
+
+    if (targetMethodTypeStr == null) {
+      throw InvalidGenerationSourceError(
+        '[ERROR] Target method return type is null',
+        element: element,
+      );
+    }
+
+    final compareLen =
+        peekCacheMethodTypeStr.length > targetMethodTypeStr.length
+            ? targetMethodTypeStr.length
+            : peekCacheMethodTypeStr.length;
+
+    if (peekCacheMethodTypeStr.substring(0, compareLen) !=
+        targetMethodTypeStr.substring(0, compareLen)) {
       throw InvalidGenerationSourceError(
         '[ERROR] Peek cache method return type needs to be a $targetMethodTypeStr?',
         element: element,

@@ -45,7 +45,7 @@ class DeletesCacheMethod {
     return DeletesCacheMethod(
       name: element.name,
       methodNames: methodNames ?? [],
-      returnType: element.returnType.getDisplayString(withNullability: true),
+      returnType: element.returnType.getDisplayString(),
       isAsync: element.isAsynchronous,
       isGenerator: element.isGenerator,
       params: element.parameters.map((e) => Param.fromElement(e, config)),
