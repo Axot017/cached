@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:cached_annotation/cached_annotation.dart';
 import 'package:http/http.dart';
+import '../bin/user.dart';
 
 /// Do not forget add part keyword for file,
 /// because then class not be generated.
@@ -128,6 +129,36 @@ abstract mixin class Gen implements _$Gen {
   /// Method with this annotation will clear cached values for all methods.
   @clearAllCached
   void clearAllCache();
+
+  @Cached(
+    ttl: 30,
+    limit: 10,
+  )
+  Future<User> getUser(String id) async {
+    return User(id, 'John', 24);
+  }
+
+  @UpdateCache('getUser')
+  Future<User> updateUser(
+    @CacheKey(getUserKeyHash) User updatedUser,
+    @ignore String otherParamToBeIgnoredWhileGeneratingCacheKey,
+  ) async {
+    return updatedUser;
+  }
+
+  @cached
+  int method() {
+    return 1;
+  }
+
+  @UpdateCache('method')
+  int updateMethodCache() {
+    return 2;
+  }
+}
+
+String getUserKeyHash(dynamic updatedUser) {
+  return updatedUser.id.hashCode.toString();
 }
 
 Future<bool> _shouldCache(Response response) async {

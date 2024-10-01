@@ -21,4 +21,5 @@ export 'src/persistent_storage/cached_storage.dart';
 export 'src/persistent_storage/not_implemented_storage.dart';
 export 'src/persistent_storage/persistent_storage_holder.dart';
 export 'src/streamed_cache.dart';
+export 'src/update_cache.dart';
 export 'src/with_cache.dart';
