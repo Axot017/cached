@@ -14,6 +14,7 @@ import 'package:cached/src/templates/clear_all_cached_method_template.dart';
 import 'package:cached/src/templates/clear_cached_method_template.dart';
 import 'package:cached/src/templates/deletes_cache_method_template.dart';
 import 'package:cached/src/templates/streamed_method_template.dart';
+import 'package:cached/src/templates/update_cache_template.dart';
 import 'package:cached/src/utils/common_generator.dart';
 import 'package:collection/collection.dart';
 
@@ -63,6 +64,8 @@ class ClassTemplate {
 
     final deletesCacheMethodTemplates = _getDeleterCacheMethodTemplates();
 
+    final updateCacheMethodTemplates = _getUpdateCacheMethodTemplates();
+
     return '''
        class _${classWithCache.name} with ${classWithCache.name} implements _\$${classWithCache.name} {
          _${classWithCache.name}(${constructorParamTemplates.generateThisParams()})${_initAsyncStorage()}
@@ -94,6 +97,8 @@ class ClassTemplate {
          ${clearAllMethodTemplate.generateMethod()}
 
          ${deletesCacheMethodTemplates.map((e) => e.generateMethod()).join('\n\n')}
+
+          ${updateCacheMethodTemplates.map((e) => e.generate()).join('\n\n')}
        }
        ''';
   }
@@ -370,6 +375,22 @@ class ClassTemplate {
           (streamedMethod) => _streamedMethodFilter(method, streamedMethod),
         )
         .toList();
+  }
+
+  Iterable<UpdateCacheMethodTemplate> _getUpdateCacheMethodTemplates() {
+    final updateCacheMethods = classWithCache.updateCacheMethods;
+    return updateCacheMethods.map((m) {
+      final streamedCacheMethods = classWithCache.streamedCacheMethods;
+      final isCacheStreamed = streamedCacheMethods.any(
+        (s) => s.targetMethodName == m.target.name,
+      );
+
+      return UpdateCacheMethodTemplate(
+        m,
+        useStaticCache: classWithCache.useStaticCache,
+        isCacheStreamed: isCacheStreamed,
+      );
+    });
   }
 
   bool _streamedMethodFilter(

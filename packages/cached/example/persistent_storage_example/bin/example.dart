@@ -29,6 +29,13 @@ Future<void> main(List<String> arguments) async {
   // await gen.clearTodos();
 
   await _fetchTodos(gen);
+
+  final number = await gen.getNumber();
+  print('Number: $number');
+  final updatedNumber = await gen.updateNumber(43);
+  print('Updated number: $updatedNumber');
+  final numberAfterUpdate = await gen.getNumber();
+  print('Number after update: $numberAfterUpdate');
 }
 
 Future<void> _fetchTodos(Gen gen) async {

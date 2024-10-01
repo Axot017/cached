@@ -1170,3 +1170,141 @@ abstract class AllParamsPersistentStorage {
     return [13, 21, 34];
   }
 }
+
+// with update cache
+@ShouldGenerate(
+  r'''
+abstract class _$UpdateCacheBasic {}
+
+class _UpdateCacheBasic with UpdateCacheBasic implements _$UpdateCacheBasic {
+  _UpdateCacheBasic() {
+    _init();
+  }
+
+  Future<void> _init() async {
+    try {
+      final cachedMap = await PersistentStorageHolder.read('_methodCached');
+
+      cachedMap.forEach((_, value) {
+        if (value is! int) throw TypeError();
+      });
+
+      _methodCached = cachedMap;
+    } catch (e) {
+      _methodCached = <String, dynamic>{};
+    }
+
+    try {
+      _methodTtl = await PersistentStorageHolder.read('_methodTtl');
+    } catch (e) {
+      _methodTtl = <String, dynamic>{};
+    }
+
+    _completer.complete();
+  }
+
+  final _completer = Completer<void>();
+  Future<void> get _completerFuture => _completer.future;
+
+  late final Map<String, dynamic> _methodCached;
+
+  late final _methodTtl;
+
+  @override
+  Future<int> method() async {
+    await _completerFuture;
+
+    final now = DateTime.now();
+    final cachedTtl = _methodTtl[""];
+    final currentTtl = cachedTtl != null ? DateTime.parse(cachedTtl) : null;
+
+    if (currentTtl != null && currentTtl.isBefore(now)) {
+      _methodTtl.remove("");
+      _methodCached.remove("");
+    }
+
+    final cachedValue = _methodCached[""];
+    if (cachedValue == null) {
+      final int toReturn;
+      try {
+        final result = super.method();
+
+        toReturn = await result;
+      } catch (_) {
+        rethrow;
+      } finally {}
+
+      _methodCached[""] = toReturn;
+
+      if (_methodCached.length > 10) {
+        _methodCached.remove(_methodCached.entries.first.key);
+      }
+
+      const duration = Duration(seconds: 30);
+      _methodTtl[""] = DateTime.now().add(duration).toIso8601String();
+
+      await PersistentStorageHolder.write('_methodCached', _methodCached);
+      await PersistentStorageHolder.write('_methodTtl', _methodTtl);
+
+      return toReturn;
+    } else {
+      return cachedValue;
+    }
+  }
+
+  @override
+  Future<int> updateMethod() async {
+    await _completerFuture;
+
+    final now = DateTime.now();
+    final cachedTtl = _methodTtl[""];
+    final currentTtl = cachedTtl != null ? DateTime.parse(cachedTtl) : null;
+
+    if (currentTtl != null && currentTtl.isBefore(now)) {
+      _methodTtl.remove("");
+      _methodCached.remove("");
+    }
+
+    final int toReturn;
+    try {
+      final result = super.updateMethod();
+
+      toReturn = await result;
+    } catch (_) {
+      rethrow;
+    } finally {}
+
+    _methodCached[""] = toReturn;
+
+    if (_methodCached.length > 10) {
+      _methodCached.remove(_methodCached.entries.first.key);
+    }
+
+    const duration = Duration(seconds: 30);
+    _methodTtl[""] = DateTime.now().add(duration).toIso8601String();
+
+    await PersistentStorageHolder.write('_methodCached', _methodCached);
+    await PersistentStorageHolder.write('_methodTtl', _methodTtl);
+
+    return toReturn;
+  }
+}
+''',
+)
+@WithCache()
+abstract class UpdateCacheBasic {
+  factory UpdateCacheBasic() = _UpdateCacheBasic;
+
+  @PersistentCached(
+    ttl: 30,
+    limit: 10,
+  )
+  Future<int> method() async {
+    return 1;
+  }
+
+  @UpdateCache('method')
+  Future<int> updateMethod() async {
+    return 2;
+  }
+}

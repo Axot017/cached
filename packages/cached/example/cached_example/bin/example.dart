@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import '../bin/user.dart';
 import 'gen.dart';
 
 /// Open gen.dart file to check how use [Cached] package,
@@ -43,4 +44,15 @@ void main(List<String> arguments) async {
   print('\n==============================');
 
   await streamSubscription.cancel();
+
+  final updatedUser = User('123', 'John Doe', 25);
+
+  final user = await gen.getUser('123');
+
+  await gen.updateUser(updatedUser, 'someParam');
+
+  final updatedUserResponse = await gen.getUser('123');
+
+  print('\nUser before update: ${user.name}'); // John
+  print('User after update: ${updatedUserResponse.name}'); // John Doe
 }

@@ -53,6 +53,26 @@ abstract mixin class Gen implements _$Gen {
     return decodedBody.map<Todo>((e) => Todo.fromJson(e)).toList();
   }
 
+  @PersistentCached()
+  Future<int> getNumber() async {
+    return 42;
+  }
+
+  @DirectPersistentCached()
+  Future<int> getDirectNumber() async {
+    return 42;
+  }
+
+  @UpdateCache('getNumber')
+  Future<int> updateNumber(@ignore int number) async {
+    return number;
+  }
+
+  @UpdateCache('getDirectNumber')
+  Future<int> updateDirectNumber(@ignore int number) async {
+    return number;
+  }
+
   /// To delete persisted data, you can also use [ClearAllCached],
   /// [DeletesCache] annotations.
   @ClearCached('getTodos')

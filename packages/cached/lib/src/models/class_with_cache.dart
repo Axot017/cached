@@ -9,6 +9,7 @@ import 'package:cached/src/models/clear_cached_method.dart';
 import 'package:cached/src/models/constructor.dart';
 import 'package:cached/src/models/deletes_cache_method.dart';
 import 'package:cached/src/models/streamed_cache_method.dart';
+import 'package:cached/src/models/update_cache.dart';
 import 'package:cached/src/utils/asserts.dart';
 import 'package:cached/src/utils/utils.dart';
 import 'package:cached_annotation/cached_annotation.dart';
@@ -28,6 +29,7 @@ class ClassWithCache {
     required this.cachePeekMethods,
     required this.deletesCacheMethods,
     required this.getters,
+    required this.updateCacheMethods,
     this.clearAllMethod,
   });
 
@@ -146,6 +148,17 @@ class ClassWithCache {
       [...methods, ...getters],
     );
 
+    final updateCacheMethods = [...element.methods, ...element.accessors]
+        .where((element) => UpdateCacheMethod.getAnnotation(element) != null)
+        .map(
+          (e) => UpdateCacheMethod.fromElement(
+            e,
+            [...element.methods, ...element.accessors],
+            config,
+          ),
+        )
+        .toList();
+
     return ClassWithCache(
       name: element.name,
       useStaticCache:
@@ -158,6 +171,7 @@ class ClassWithCache {
       cachePeekMethods: cachePeekMethods,
       deletesCacheMethods: deletesCacheMethods,
       getters: getters,
+      updateCacheMethods: updateCacheMethods,
     );
   }
 
@@ -171,4 +185,5 @@ class ClassWithCache {
   final Iterable<DeletesCacheMethod> deletesCacheMethods;
   final ClearAllCachedMethod? clearAllMethod;
   final Iterable<CachedGetter> getters;
+  final Iterable<UpdateCacheMethod> updateCacheMethods;
 }

@@ -22,6 +22,7 @@ Future<void> main() async {
     'DirectPersistentStoargeRepository',
     'LazyPersistentStorage',
     'AllParamsPersistentStorage',
+    'UpdateCacheBasic',
   };
 
   final reader = await initializeLibraryReaderForDirectory(
