@@ -47,7 +47,7 @@ class StreamedCacheMethod {
     final coreCacheStreamMethodType =
         element.returnType.typeArgumentsOf(streamTypeChecker)?.single;
     final coreCacheSteamMethodTypeStr =
-        coreCacheStreamMethodType?.getDisplayString(withNullability: true);
+        coreCacheStreamMethodType?.getDisplayString();
 
     const futureTypeChecker = TypeChecker.fromRuntime(Future);
     final targetMethodSyncReturnType = targetMethod.returnType.isDartAsyncFuture
@@ -55,7 +55,7 @@ class StreamedCacheMethod {
         : targetMethod.returnType;
 
     final targetMethodSyncTypeStr =
-        targetMethodSyncReturnType?.getDisplayString(withNullability: true);
+        targetMethodSyncReturnType?.getDisplayString();
 
     if (coreCacheSteamMethodTypeStr != targetMethodSyncTypeStr) {
       throw InvalidGenerationSourceError(

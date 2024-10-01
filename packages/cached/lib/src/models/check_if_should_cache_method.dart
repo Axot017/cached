@@ -25,7 +25,7 @@ class CheckIfShouldCacheMethod {
 
     final name = shouldCacheFunction.name;
     final returnType = shouldCacheFunction.returnType;
-    final returnTypeStr = returnType.getDisplayString(withNullability: false);
+    final returnTypeStr = returnType.getDisplayString();
     final isAsync =
         shouldCacheFunction.isAsynchronous || isFuture(returnTypeStr);
 

@@ -1,7 +1,7 @@
 import 'package:cached_annotation/cached_annotation.dart';
 import 'package:source_gen_test/annotations.dart';
 
-@ShouldThrow('[ERROR] Peek cache method return type needs to be a int?')
+@ShouldThrow('[ERROR] Peek cache method return type needs to be nullable')
 @withCache
 abstract class CachePeekMethodReturnType {
   factory CachePeekMethodReturnType() = _CachePeekMethodReturnType;
@@ -290,7 +290,7 @@ abstract class DuplicateTarget {
   int? cachedPeek(int x);
 
   @CachePeek("cachedMethod")
-  int anotherSameCachePeek(int x);
+  int? anotherSameCachePeek(int x);
 }
 
 @ShouldThrow('[ERROR] `cachedPeek` must be a abstract method')
